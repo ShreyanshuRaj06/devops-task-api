@@ -15,7 +15,7 @@ def home():
     return jsonify({
         "service": "DevOps Task Manager API",
         "status": "running",
-        "endpoints": ["GET /health", "GET /tasks", "POST /tasks"]
+        "endpoints": ["GET /health", "GET /tasks", "POST /tasks", "DELETE /tasks/<id>"]
     }), 200
 
 
@@ -43,6 +43,16 @@ def add_task():
     }
     tasks.append(new_task)
     return jsonify(new_task), 201
+
+
+@app.route("/tasks/<int:task_id>", methods=["DELETE"])
+def delete_task(task_id):
+    global tasks
+    existing = [t for t in tasks if t["id"] == task_id]
+    if not existing:
+        return jsonify({"error": "Task not found"}), 404
+    tasks = [t for t in tasks if t["id"] != task_id]
+    return jsonify({"deleted": task_id}), 200
 
 
 if __name__ == "__main__":
