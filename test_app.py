@@ -29,3 +29,11 @@ def test_create_task(client):
     created = response.get_json()
     assert created["title"] == "Verify CI Pipeline"
     assert created["done"] is False
+
+
+def test_delete_task(client):
+    create_res = client.post("/tasks", json={"title": "Temporary Task"})
+    task_id = create_res.get_json()["id"]
+    del_res = client.delete(f"/tasks/{task_id}")
+    assert del_res.status_code == 200
+    assert del_res.get_json()["deleted"] == task_id
