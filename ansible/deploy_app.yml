@@ -1,0 +1,34 @@
+---
+- name: Configure and Provision DevOps Task Manager API
+  hosts: appservers
+  become: false
+  vars:
+    app_name: devops-task-api
+    app_port: 5000
+    image_tag: "1.0"
+    deploy_dir: /opt/devops-task-api
+  roles:
+    - common
+  tasks:
+    - name: Copy application source and requirements to target directory
+      ansible.builtin.copy:
+        src: "/workspace/{{ item }}"
+        dest: "{{ deploy_dir }}/{{ item }}"
+        mode: "0644"
+      loop:
+        - app.py
+        - requirements.txt
+        - Dockerfile
+      notify: restart app service
+
+    - name: Render runtime environment configuration from Jinja2 template
+      ansible.builtin.template:
+        src: app.env.j2
+        dest: "{{ deploy_dir }}/config/app.env"
+        mode: "0644"
+      notify: restart app service
+
+  handlers:
+    - name: restart app service
+      ansible.builtin.debug:
+        msg: "Handler triggered: Reloading {{ app_name }} configuration on port {{ app_port }}"

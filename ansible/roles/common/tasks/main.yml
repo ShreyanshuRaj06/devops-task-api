@@ -1,0 +1,19 @@
+---
+- name: Ensure baseline application and log directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ deploy_dir }}"
+    - "{{ deploy_dir }}/config"
+    - "{{ deploy_dir }}/logs"
+
+- name: Deploy baseline environment metadata file
+  ansible.builtin.copy:
+    content: |
+      managed_by=ansible
+      role=common
+      service={{ app_name }}
+    dest: "{{ deploy_dir }}/config/environment.meta"
+    mode: "0644"
